@@ -15,9 +15,17 @@ const keyboard = {
     resize_keyboard: true,
     keyboard: [
       [{ text: "/tasks" }, { text: "/reminder" }],
-      [{ text: "/stopreminder" }, { text: "/logout" }],
+      [{ text: "/stopreminder" }, { text: "/logout" }, { text: "/dev"}],
     ],
   },
 };
 
-module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard };
+const AUTHOR_INFO = {
+  name: "Ахмед",
+  contact: "@DevAhmed1",
+  email: "amoshal1997@gmail.com",
+  github: "https://github.com/AhmedLyanov",
+};
+
+
+module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard, AUTHOR_INFO };
