@@ -65,13 +65,7 @@ async function getTasksWithDeadlines(token, studentId) {
         name: task.contentBlock?.name || "Без названия",
         topic: task.topic?.name || "Без темы",
         deadline: new Date(task.taskDeadline),
-        type: task.kind === "TASK" ? "Учебная практика" : "Тест",
-        contentId: task.contentBlock?.id,
-        topicId: task.topic?.id,
-        link:
-          task.contentBlock?.id && task.topic?.id
-            ? `https://newlxp.ru/topics/${task.topic.id}/content/${task.contentBlock.id}`
-            : null,
+        link: "https://newlxp.ru/education/04329772-ff8b-4123-a65b-298e1fa799fb/exercises",
       }));
   } catch (error) {
     console.error("Ошибка получения заданий:", {

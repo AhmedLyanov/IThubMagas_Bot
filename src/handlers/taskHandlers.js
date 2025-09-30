@@ -45,23 +45,23 @@ async function checkDeadlines(bot, chatId) {
       .sort((a, b) => a.deadline - b.deadline);
 
     if (sortedTasks.length > 0) {
-      let message = "⏰ <b>!!!НАПОМИНАНИЕ!!!</b>\n\n";
+      let message = "<b>Ваши приближающиеся сроки:</b>\n\n";
 
       sortedTasks.forEach((task) => {
         const hoursLeft = Math.ceil((task.deadline - now) / (1000 * 60 * 60));
         let timeLeftText;
 
         if (hoursLeft < 24) {
-          timeLeftText = `⏳ Осталось: ${hoursLeft} ${getHourText(hoursLeft)}`;
+          timeLeftText = `Осталось: ${hoursLeft} ${getHourText(hoursLeft)}`;
         } else {
           const daysLeft = Math.ceil(hoursLeft / 24);
-          timeLeftText = `⏳ Осталось: ${daysLeft} ${getDayText(daysLeft)}`;
+          timeLeftText = `Осталось: ${daysLeft} ${getDayText(daysLeft)}`;
         }
 
-        message += `📌 <b>${task.name}</b> (${task.type})\n`;
-        message += `📚 Тема: ${task.topic}\n`;
+        message += `<b>${task.name}</b> \n`;
+        message += `Тема: ${task.topic}\n`;
         message += `${timeLeftText}\n`;
-        message += `📅 Срок: ${task.deadline.toLocaleString("ru-RU", {
+        message += `Срок: ${task.deadline.toLocaleString("ru-RU", {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -69,7 +69,7 @@ async function checkDeadlines(bot, chatId) {
           minute: "2-digit",
         })}\n`;
         if (task.link) {
-          message += `🔗 <a href="${task.link}">Перейти к заданию</a>\n-------------------------\n\n\n`;
+          message += `<a href="${task.link}">Перейти к списку задач</a>\n-------------------------\n\n\n`;
         } else {
           message += `\n`;
         }

@@ -183,7 +183,8 @@ function setupMessageHandlers(bot) {
     const text = msg.text;
 
     
-    if (text.startsWith("/") || !text.trim()) return;
+ if (!text || text.startsWith("/") || !text.trim()) return;
+
 
     const session = userSessions[chatId] || { state: BOT_STATES.IDLE };
 
