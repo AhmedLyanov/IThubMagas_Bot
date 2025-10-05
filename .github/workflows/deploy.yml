@@ -18,4 +18,4 @@ jobs:
               cd IThubMagas_Bot/
               git pull
               npm i 
-              pm2 restart IThubMagas_Bot_Tg
+              pm2 restart ithub-bot
