@@ -17,6 +17,7 @@ async function sendInstructions(bot, chatId) {
 /dev - Информация о создателе бота.
 /logout - Выйти из системы и удалить данные.
 /help - Показать эту инструкцию снова.
+/schedule - расписание на неделю
 
 Используйте кнопки ниже или начните с команды /tasks!
   `;
@@ -63,12 +64,11 @@ async function sendWelcomeMessage(bot, chatId) {
   `;
 
   await bot.sendMessage(chatId, welcomeMessage, {
-    parse_mode: "HTML"
+    parse_mode: "HTML",
   });
 }
 
 function setupMessageHandlers(bot) {
-  
   bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
 
@@ -90,7 +90,57 @@ function setupMessageHandlers(bot) {
     const chatId = msg.chat.id;
     await sendAuthorInfo(bot, chatId);
   });
+  bot.onText(/\/schedule/, async (msg) => {
+    const chatId = msg.chat.id;
+    if (!userSessions[chatId]?.token) {
+      await bot.sendMessage(
+        chatId,
+        "Вы не авторизованы. Введите /start для начала работы.",
+        keyboard
+      );
+      return;
+    }
 
+    try {
+      await bot.sendMessage(
+        chatId,
+        "Загружаю расписание на неделю...",
+        keyboard
+      );
+      const { getSchedule, formatSchedule } = require("../schedule");
+      const { renderScheduleTable } = require("../utils/tableRenderer");
+
+      const classes = await getSchedule(
+        userSessions[chatId].token,
+        userSessions[chatId].studentId
+      );
+      const formatted = formatSchedule(classes);
+
+      if (Object.keys(formatted).length === 0) {
+        await bot.sendMessage(
+          chatId,
+          "На эту неделю расписание пустое.",
+          keyboard
+        );
+        return;
+      }
+
+      const imageBuffer = await renderScheduleTable(formatted);
+      await bot.sendPhoto(
+        chatId,
+        imageBuffer,
+        { caption: "Расписание на неделю:" },
+        keyboard
+      );
+    } catch (error) {
+      console.error("Ошибка расписания:", error);
+      await bot.sendMessage(
+        chatId,
+        `Ошибка загрузки расписания: ${error.message}`,
+        keyboard
+      );
+    }
+  });
   bot.onText(/\/reminder/, async (msg) => {
     const chatId = msg.chat.id;
 
@@ -152,7 +202,11 @@ function setupMessageHandlers(bot) {
       return;
     }
 
-    await bot.sendMessage(chatId, "Загружаю информацию о заданиях...", keyboard);
+    await bot.sendMessage(
+      chatId,
+      "Загружаю информацию о заданиях...",
+      keyboard
+    );
     await checkDeadlines(bot, chatId);
   });
 
@@ -169,7 +223,10 @@ function setupMessageHandlers(bot) {
         "Вы вышли из системы. Все ваши данные и настройки напоминаний удалены.\n\nДля входа снова используйте /start."
       );
     } else {
-      await bot.sendMessage(chatId, "Вы не авторизованы. Используйте /start для входа.");
+      await bot.sendMessage(
+        chatId,
+        "Вы не авторизованы. Используйте /start для входа."
+      );
     }
   });
 
@@ -184,7 +241,7 @@ function setupMessageHandlers(bot) {
     try {
       if (session.state === BOT_STATES.WAITING_EMAIL) {
         const email = text.trim();
-        
+
         if (!email.includes("@") || !email.includes(".") || email.length < 5) {
           await bot.sendMessage(
             chatId,
@@ -196,18 +253,17 @@ function setupMessageHandlers(bot) {
         userSessions[chatId] = {
           ...session,
           state: BOT_STATES.WAITING_PASSWORD,
-          credentials: { email: email.toLowerCase() }, 
+          credentials: { email: email.toLowerCase() },
         };
-        
+
         await bot.sendMessage(
           chatId,
           "Теперь введите ваш пароль:\n\nБезопасность: Ваш пароль не сохраняется и используется только для получения токена доступа.",
           { parse_mode: "HTML" }
         );
-      
       } else if (session.state === BOT_STATES.WAITING_PASSWORD) {
         const password = text.trim();
-        
+
         if (password.length < 4) {
           await bot.sendMessage(
             chatId,
@@ -231,22 +287,21 @@ function setupMessageHandlers(bot) {
         } catch (error) {
           console.error("Ошибка авторизации:", error);
           delete userSessions[chatId];
-          
+
           let errorMessage = "Ошибка авторизации. ";
           if (error.response?.data?.errors?.[0]?.message) {
             errorMessage += error.response.data.errors[0].message;
           } else {
             errorMessage += "Неверный email или пароль.";
           }
-          
+
           errorMessage += "\n\nПожалуйста, начните заново с команды /start.";
-          
+
           await bot.sendMessage(chatId, errorMessage);
         }
-      
       } else if (session.state === BOT_STATES.WAITING_REMINDER_TIME) {
         const time = text.trim();
-        
+
         if (!isValidTime(time)) {
           await bot.sendMessage(
             chatId,
@@ -258,13 +313,12 @@ function setupMessageHandlers(bot) {
 
         scheduleReminder(bot, chatId, time);
         userSessions[chatId].state = BOT_STATES.IDLE;
-        
+
         await bot.sendMessage(
           chatId,
           `Ежедневные напоминания настроены на ${time}\n\nБот будет проверять дедлайны каждый день в это время и присылать уведомления.\n\nИспользуйте /stopreminder для отключения напоминаний.`,
           { parse_mode: "HTML", ...keyboard }
         );
-      
       } else {
         await bot.sendMessage(
           chatId,
@@ -293,9 +347,9 @@ function setupMessageHandlers(bot) {
   console.log("Message handlers setup completed");
 }
 
-module.exports = { 
-  setupMessageHandlers, 
-  sendInstructions, 
+module.exports = {
+  setupMessageHandlers,
+  sendInstructions,
   sendAuthorInfo,
-  sendWelcomeMessage 
+  sendWelcomeMessage,
 };
