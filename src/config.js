@@ -1,5 +1,3 @@
-const { text } = require("express");
-
 require("dotenv").config();
 
 const API_URL = process.env.WEB_API_URL;
