@@ -18,6 +18,7 @@ async function sendInstructions(bot, chatId) {
 /logout - Выйти из системы и удалить данные.
 /help - Показать эту инструкцию снова.
 /schedule - расписание на неделю
+/notifications - ваши уведомления
 
 Используйте кнопки ниже или начните с команды /tasks!
   `;
@@ -209,7 +210,55 @@ function setupMessageHandlers(bot) {
     );
     await checkDeadlines(bot, chatId);
   });
+bot.onText(/\/notifications/, async (msg) => {
+  const chatId = msg.chat.id;
+  
+  if (!userSessions[chatId]?.token) {
+    await bot.sendMessage(
+      chatId,
+      "Вы не авторизованы. Введите /start для начала работы.",
+      keyboard
+    );
+    return;
+  }
 
+  try {
+    await bot.sendMessage(
+      chatId,
+      "Загружаю уведомления о заданиях...",
+      keyboard
+    );
+
+    const { getNotifications, filterAssignmentNotifications, formatNotificationsList } = require("../notifications");
+    
+    const notificationsData = await getNotifications(userSessions[chatId].token);
+    const assignmentNotifications = filterAssignmentNotifications(notificationsData);
+
+    if (assignmentNotifications.length === 0) {
+      await bot.sendMessage(
+        chatId,
+        "На данный момент у вас нет уведомлений о заданиях.",
+        { parse_mode: "HTML", ...keyboard }
+      );
+      return;
+    }
+
+    const message = formatNotificationsList(assignmentNotifications);
+    await bot.sendMessage(
+      chatId,
+      message,
+      { parse_mode: "HTML", ...keyboard }
+    );
+
+  } catch (error) {
+    console.error("Ошибка получения уведомлений:", error);
+    await bot.sendMessage(
+      chatId,
+      `Ошибка загрузки уведомлений: ${error.message}`,
+      keyboard
+    );
+  }
+});
   bot.onText(/\/logout/, async (msg) => {
     const chatId = msg.chat.id;
 
