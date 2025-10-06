@@ -91,7 +91,7 @@ function formatSchedule(classes) {
     const timeTo = new Date(cls.to).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
     const discipline = cls.discipline?.name || "Не указано";
     const teacher = cls.teachers?.[0]?.user ? `${cls.teachers[0].user.lastName} ${cls.teachers[0].user.firstName.charAt(0)}.` : "Не указано";
-    const classroom = cls.classroom ? `${cls.classroom.name} (${cls.classroom.buildingArea?.name})` : "Не указано";
+    const classroom = cls.classroom ? `${cls.classroom.name}` : "Не указано";
     const link = cls.isOnline && cls.meetingLink ? cls.meetingLink : "";
 
     days[dayName].push({
@@ -103,7 +103,6 @@ function formatSchedule(classes) {
     });
   });
 
-  
   Object.keys(days).forEach(day => {
     days[day] = days[day].sort((a, b) => a.time.localeCompare(b.time));
   });
