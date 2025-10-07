@@ -87,8 +87,8 @@ function formatSchedule(classes) {
     const dayName = dayNames[dayIndex - 1];
 
     if (!days[dayName]) days[dayName] = [];
-    const timeFrom = new Date(cls.from).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-    const timeTo = new Date(cls.to).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    const timeFrom = new Date(cls.from).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit",  timeZone: "Europe/Moscow" });
+    const timeTo = new Date(cls.to).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit",  timeZone: "Europe/Moscow" });
     const discipline = cls.discipline?.name || "Не указано";
     const teacher = cls.teachers?.[0]?.user ? `${cls.teachers[0].user.lastName} ${cls.teachers[0].user.firstName.charAt(0)}.` : "Не указано";
     const classroom = cls.classroom ? `${cls.classroom.name}` : "Не указано";
