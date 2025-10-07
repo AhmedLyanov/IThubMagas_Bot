@@ -27,5 +27,12 @@ const AUTHOR_INFO = {
   github: "https://github.com/AhmedLyanov",
 };
 
+const CO_AUTHOR_INFO = {
+  name: "Адам",
+  contact: "@ItHubMagas",
+  email: "adam.ovsh00@mail.ru",
+  github: "https://github.com/Nays06",
+};
 
-module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard, AUTHOR_INFO };
+
+module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard, AUTHOR_INFO, CO_AUTHOR_INFO };

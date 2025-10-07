@@ -4,44 +4,142 @@ const { API_URL } = require("./config");
 async function getTasksWithDeadlines(token, studentId) {
   try {
     const query = `
-      query StudentAvailableTasks($input: StudentAvailableTasksInput!) {
+      query StudentAvailableTasks($input: StudentAvailableTasksInput!, $studentId: UUID!) {
         studentAvailableTasks(input: $input) {
+          hasMore
+          page
+          perPage
+          total
+          totalPages
           items {
-            kind
-            taskDeadline
-            contentBlock { 
-              ... on TaskDisciplineTopicContentBlock {
-                id
-                name
-              }
-              ... on TestDisciplineTopicContentBlock {
-                id
-                name
-              }
-            }
-            topic { 
-              name 
-              id 
-            }
+            ...StudentContentBlockInStudentTaskListFragment
+            __typename
           }
+          __typename
         }
+      }
+
+      fragment StudentContentBlockInStudentTaskListFragment on StudentContentBlock {
+        contentBlock {
+          ... on TaskDisciplineTopicContentBlock {
+            id
+            kind
+            name
+            maxScore
+            __typename
+          }
+          ... on TestDisciplineTopicContentBlock {
+            id
+            name
+            kind
+            testMaxScore: maxScore
+            canBePassed(studentId: $studentId)
+            testId
+            __typename
+          }
+          __typename
+        }
+        taskDeadline
+        customTaskDeadline {
+          deadline
+          formEducation {
+            comment
+            finishedAt
+            form
+            id
+            startedAt
+            studentId
+            __typename
+          }
+          __typename
+        }
+        testScore
+        testInterval {
+          from
+          to
+          __typename
+        }
+        customTestInterval {
+          interval {
+            from
+            to
+            __typename
+          }
+          formEducation {
+            comment
+            finishedAt
+            form
+            id
+            startedAt
+            studentId
+            __typename
+          }
+          __typename
+        }
+        studentTopic {
+          status
+          __typename
+        }
+        topic {
+          id
+          name
+          chapterId
+          isCheckPoint
+          isForPortfolio
+          chapter {
+            id
+            name
+            discipline {
+              id
+              name
+              archivedAt
+              suborganization {
+                organization {
+                  timezoneMinutesOffset
+                  __typename
+                }
+                __typename
+              }
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+        task {
+          id
+          scoreInPercent
+          answers {
+            createdAt
+            id
+            commentsCount
+            __typename
+          }
+          createdAt
+          __typename
+        }
+        __typename
       }
     `;
 
     const variables = {
       input: {
         studentId: studentId,
-        pageSize: 50,
+        pageSize: 10,
         page: 1,
         filters: {
-          fromArchivedDiscipline: false,
-        },
+          query: "",
+          status: null,
+          organizationId: "04329772-ff8b-4123-a65b-298e1fa799fb"
+        }
       },
+      studentId: studentId
     };
 
     const response = await axios.post(
       API_URL,
       {
+        operationName: "StudentAvailableTasks",
         query,
         variables,
       },
@@ -60,13 +158,22 @@ async function getTasksWithDeadlines(token, studentId) {
     }
 
     return response.data.data.studentAvailableTasks.items
-      .filter((task) => task.taskDeadline)
-      .map((task) => ({
-        name: task.contentBlock?.name || "Без названия",
-        topic: task.topic?.name || "Без темы",
-        deadline: new Date(task.taskDeadline),
-        link: "https://newlxp.ru/education/04329772-ff8b-4123-a65b-298e1fa799fb/exercises",
-      }));
+      .filter((task) => task.taskDeadline || task.customTaskDeadline?.deadline)
+      .map((task) => {
+        const deadline = task.customTaskDeadline?.deadline || task.taskDeadline;
+        const contentBlock = task.contentBlock;
+        
+        return {
+          name: contentBlock?.name || "Без названия",
+          topic: task.topic?.name || "Без темы",
+          deadline: new Date(deadline),
+          kind: contentBlock?.kind,
+          maxScore: contentBlock?.maxScore || contentBlock?.testMaxScore,
+          taskId: task.task?.id,
+          testId: contentBlock?.testId,
+          link: "https://newlxp.ru/education/04329772-ff8b-4123-a65b-298e1fa799fb/exercises",
+        };
+      });
   } catch (error) {
     console.error("Ошибка получения заданий:", {
       message: error.message,
