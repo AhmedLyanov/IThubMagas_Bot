@@ -1,12 +1,26 @@
 const { BOT_STATES, keyboard, AUTHOR_INFO, CO_AUTHOR_INFO } = require("../config");
-const { userSessions } = require("../bot");
+const { userSessions, checkRateLimit } = require("../bot");
 const { refreshToken } = require("../auth");
 const { checkDeadlines } = require("./taskHandlers");
 const { isValidTime, scheduleReminder } = require("../reminders");
 
+async function checkAndHandleRateLimit(bot, chatId, command = '') {
+    const limitCheck = checkRateLimit(chatId, command);
+    
+    if (!limitCheck.allowed) {
+        await bot.sendMessage(chatId, limitCheck.reason, keyboard);
+        return false;
+    }
+    
+    if (limitCheck.warning) {
+        await bot.sendMessage(chatId, limitCheck.warning, keyboard);
+    }
+    
+    return true;
+}
+
 async function sendInstructions(bot, chatId) {
   const instructions = `
-
 Инструкция по работе с ботом:
 
 /start - Авторизация на платформе (ввод email и пароля).
@@ -17,7 +31,7 @@ async function sendInstructions(bot, chatId) {
 /logout - Выйти из системы и удалить данные.
 /help - Показать эту инструкцию снова.
 /schedule - расписание на неделю
-/notifications - ваши уведомления по заданиям
+/notifications - ваши уведомления
 
 Используйте кнопки ниже или начните с команды /tasks!
   `;
@@ -65,8 +79,6 @@ async function sendWelcomeMessage(bot, chatId) {
 - Следить за дедлайнами заданий
 - Получать своевременные уведомления
 - Не пропускать важные сроки сдачи
-- Получать удобную таблицу расписания
-- Наличи важных уведомлений
 
 Для начала работы введите ваш email от образовательной платформы IThub:
   `;
@@ -79,6 +91,9 @@ async function sendWelcomeMessage(bot, chatId) {
 function setupMessageHandlers(bot) {
   bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
+    
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/start'))) return;
 
     if (userSessions[chatId]?.token) {
       await sendInstructions(bot, chatId);
@@ -91,15 +106,28 @@ function setupMessageHandlers(bot) {
 
   bot.onText(/\/help/, async (msg) => {
     const chatId = msg.chat.id;
+    
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/help'))) return;
+    
     await sendInstructions(bot, chatId);
   });
 
   bot.onText(/\/dev/, async (msg) => {
     const chatId = msg.chat.id;
+    
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/dev'))) return;
+    
     await sendAuthorInfo(bot, chatId);
   });
+
   bot.onText(/\/schedule/, async (msg) => {
     const chatId = msg.chat.id;
+    
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/schedule'))) return;
+
     if (!userSessions[chatId]?.token) {
       await bot.sendMessage(
         chatId,
@@ -149,8 +177,12 @@ function setupMessageHandlers(bot) {
       );
     }
   });
+
   bot.onText(/\/reminder/, async (msg) => {
     const chatId = msg.chat.id;
+
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/reminder'))) return;
 
     if (!userSessions[chatId]?.token) {
       await bot.sendMessage(
@@ -171,6 +203,9 @@ function setupMessageHandlers(bot) {
 
   bot.onText(/\/stopreminder/, async (msg) => {
     const chatId = msg.chat.id;
+
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/stopreminder'))) return;
 
     if (!userSessions[chatId]?.token) {
       await bot.sendMessage(
@@ -201,6 +236,9 @@ function setupMessageHandlers(bot) {
   bot.onText(/\/tasks/, async (msg) => {
     const chatId = msg.chat.id;
 
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/tasks'))) return;
+
     if (!userSessions[chatId]?.token) {
       await bot.sendMessage(
         chatId,
@@ -217,57 +255,65 @@ function setupMessageHandlers(bot) {
     );
     await checkDeadlines(bot, chatId);
   });
-bot.onText(/\/notifications/, async (msg) => {
-  const chatId = msg.chat.id;
-  
-  if (!userSessions[chatId]?.token) {
-    await bot.sendMessage(
-      chatId,
-      "Вы не авторизованы. Введите /start для начала работы.",
-      keyboard
-    );
-    return;
-  }
 
-  try {
-    await bot.sendMessage(
-      chatId,
-      "Загружаю уведомления о заданиях...",
-      keyboard
-    );
-
-    const { getNotifications, filterAssignmentNotifications, formatNotificationsList } = require("../notifications");
+  bot.onText(/\/notifications/, async (msg) => {
+    const chatId = msg.chat.id;
     
-    const notificationsData = await getNotifications(userSessions[chatId].token);
-    const assignmentNotifications = filterAssignmentNotifications(notificationsData);
-
-    if (assignmentNotifications.length === 0) {
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/notifications'))) return;
+    
+    if (!userSessions[chatId]?.token) {
       await bot.sendMessage(
         chatId,
-        "На данный момент у вас нет уведомлений о заданиях.",
-        { parse_mode: "HTML", ...keyboard }
+        "Вы не авторизованы. Введите /start для начала работы.",
+        keyboard
       );
       return;
     }
 
-    const message = formatNotificationsList(assignmentNotifications);
-    await bot.sendMessage(
-      chatId,
-      message,
-      { parse_mode: "HTML", ...keyboard }
-    );
+    try {
+      await bot.sendMessage(
+        chatId,
+        "Загружаю уведомления о заданиях...",
+        keyboard
+      );
 
-  } catch (error) {
-    console.error("Ошибка получения уведомлений:", error);
-    await bot.sendMessage(
-      chatId,
-      `Ошибка загрузки уведомлений: ${error.message}`,
-      keyboard
-    );
-  }
-});
+      const { getNotifications, filterAssignmentNotifications, formatNotificationsList } = require("../notifications");
+      
+      const notificationsData = await getNotifications(userSessions[chatId].token);
+      const assignmentNotifications = filterAssignmentNotifications(notificationsData);
+
+      if (assignmentNotifications.length === 0) {
+        await bot.sendMessage(
+          chatId,
+          "На данный момент у вас нет уведомлений о заданиях.",
+          { parse_mode: "HTML", ...keyboard }
+        );
+        return;
+      }
+
+      const message = formatNotificationsList(assignmentNotifications);
+      await bot.sendMessage(
+        chatId,
+        message,
+        { parse_mode: "HTML", ...keyboard }
+      );
+
+    } catch (error) {
+      console.error("Ошибка получения уведомлений:", error);
+      await bot.sendMessage(
+        chatId,
+        `Ошибка загрузки уведомлений: ${error.message}`,
+        keyboard
+      );
+    }
+  });
+
   bot.onText(/\/logout/, async (msg) => {
     const chatId = msg.chat.id;
+
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, '/logout'))) return;
 
     if (userSessions[chatId]) {
       if (userSessions[chatId].reminder?.cronTask) {
@@ -291,6 +337,9 @@ bot.onText(/\/notifications/, async (msg) => {
     const text = msg.text;
 
     if (!text || text.startsWith("/") || !text.trim()) return;
+
+    
+    if (!(await checkAndHandleRateLimit(bot, chatId, 'message'))) return;
 
     const session = userSessions[chatId] || { state: BOT_STATES.IDLE };
 

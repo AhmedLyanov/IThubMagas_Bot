@@ -10,6 +10,18 @@ const BOT_STATES = {
   WAITING_REMINDER_TIME: 3,
 };
 
+RATE_LIMIT = {
+  WINDOW_MS: 60000,
+  MAX_REQUESTS: 20,
+  BLOCK_TIME_MS: 30000,
+  HEAVY_COMMANDS: {
+    '/tasks': 5,
+    '/schedule': 5,
+    '/notifications': 5,
+    '/reminder': 3
+  }
+}
+
 const keyboard = {
   reply_markup: {
     resize_keyboard: true,
@@ -35,4 +47,4 @@ const CO_AUTHOR_INFO = {
 };
 
 
-module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard, AUTHOR_INFO, CO_AUTHOR_INFO };
+module.exports = { API_URL, BOT_TOKEN, BOT_STATES, keyboard, AUTHOR_INFO, CO_AUTHOR_INFO, RATE_LIMIT };
