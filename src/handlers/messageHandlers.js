@@ -17,7 +17,7 @@ async function sendInstructions(bot, chatId) {
 /logout - Выйти из системы и удалить данные.
 /help - Показать эту инструкцию снова.
 /schedule - расписание на неделю
-/notifications - ваши уведомления
+/notifications - ваши уведомления по заданиям
 
 Используйте кнопки ниже или начните с команды /tasks!
   `;
