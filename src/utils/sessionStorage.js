@@ -1,28 +1,29 @@
 const fs = require("fs");
 const path = require("path");
 
-const SESSIONS_FILE = path.join(__dirname, "../../data/sessions.json");
+const SESSIONS_FILE = path.resolve(process.cwd(), "data/sessions.json");
 
-// Создание папки data при необходимости
 fs.mkdirSync(path.dirname(SESSIONS_FILE), { recursive: true });
 
 function loadSessions() {
   try {
     if (fs.existsSync(SESSIONS_FILE)) {
       const data = fs.readFileSync(SESSIONS_FILE, "utf8");
-      return JSON.parse(data);
+      return JSON.parse(data || "{}");
     }
   } catch (err) {
-    console.error("Ошибка при загрузке сессий:", err);
+    console.error(err);
   }
   return {};
 }
 
-function saveSessions(sessions) {
+function saveSessions(newData) {
   try {
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2));
+    const existing = loadSessions();
+    const merged = { ...existing, ...newData };
+    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(merged, null, 2));
   } catch (err) {
-    console.error("Ошибка при сохранении сессий:", err);
+    console.error(err);
   }
 }
 

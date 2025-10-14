@@ -6,7 +6,6 @@ const { isValidTime, scheduleReminder } = require("../reminders");
 
 async function sendInstructions(bot, chatId) {
   const instructions = `
-Исправлены мелкие баги и недочеты связанные с нерабочей системой напоминания
 
 Инструкция по работе с ботом:
 
@@ -30,7 +29,7 @@ async function sendInstructions(bot, chatId) {
 
 async function sendAuthorInfo(bot, chatId) {
   const authorMessage = `
-IThub Magas Bot - Помощник для студентов
+IThub Helper - Помощник для студентов
 
 Создатель:
 Имя: ${AUTHOR_INFO.name}
@@ -60,12 +59,14 @@ GitHub: <a href="${CO_AUTHOR_INFO.github}">${CO_AUTHOR_INFO.github}</a>,
 
 async function sendWelcomeMessage(bot, chatId) {
   const welcomeMessage = `
-Добро пожаловать в IThub Magas Bot!
+Добро пожаловать в IThub Helper!
 
 Этот бот поможет вам:
 - Следить за дедлайнами заданий
 - Получать своевременные уведомления
 - Не пропускать важные сроки сдачи
+- Получать удобную таблицу расписания
+- Наличи важных уведомлений
 
 Для начала работы введите ваш email от образовательной платформы IThub:
   `;
