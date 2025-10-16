@@ -118,8 +118,6 @@ function formatNotificationsList(notifications) {
     const cleanBody = notification.body
       .replace(/<[^>]*>/g, '')
       .replace(/&nbsp;/g, ' ')
-      .substring(0, 100) + '...';
-
     const date = new Date(notification.createdAt).toLocaleDateString("ru-RU");
     
     message += `${index + 1}. <b>${notification.title}</b>\n`;
