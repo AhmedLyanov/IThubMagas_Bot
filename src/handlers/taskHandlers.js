@@ -57,8 +57,8 @@ async function checkDeadlines(bot, chatId) {
           const daysLeft = Math.ceil(hoursLeft / 24);
           timeLeftText = `Осталось: ${daysLeft} ${getDayText(daysLeft)}`;
         }
-
-        message += `<b>${task.name}</b> \n`;
+        message += `<b>${task.discipline}</b>\n`;
+        message += `${task.name} \n`;
         message += `Тема: ${task.topic}\n`;
         message += `${timeLeftText}\n`;
         message += `Срок: ${task.deadline.toLocaleString("ru-RU", {

@@ -162,8 +162,9 @@ async function getTasksWithDeadlines(token, studentId) {
       .map((task) => {
         const deadline = task.customTaskDeadline?.deadline || task.taskDeadline;
         const contentBlock = task.contentBlock;
-        
+        const disciplineName = task.topic?.chapter?.discipline?.name || "Без дисциплины";
         return {
+          discipline: disciplineName ,
           name: contentBlock?.name || "Без названия",
           topic: task.topic?.name || "Без темы",
           deadline: new Date(deadline),
