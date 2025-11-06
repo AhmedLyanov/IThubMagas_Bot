@@ -60,6 +60,7 @@ async function checkDeadlines(bot, chatId) {
         message += `<b>${task.discipline}</b>\n`;
         message += `${task.name} \n`;
         message += `Тема: ${task.topic}\n`;
+        if (task.maxScore) message += `Максимум баллов: ${task.maxScore}\n`;
         message += `${timeLeftText}\n`;
         message += `Срок: ${task.deadline.toLocaleString("ru-RU", {
           day: "numeric",
