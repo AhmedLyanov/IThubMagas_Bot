@@ -7,6 +7,7 @@ const {
 const { userSessions, checkRateLimit } = require("../bot");
 const { refreshToken } = require("../auth");
 const { checkDeadlines } = require("./taskHandlers");
+const { handleProgress } = require("../utils/progressHandler");
 const { isValidTime, scheduleReminder } = require("../reminders");
 
 async function checkAndHandleRateLimit(bot, chatId, command = "") {
@@ -136,6 +137,13 @@ function setupMessageHandlers(bot) {
     if (!(await checkAndHandleRateLimit(bot, chatId, "/dev"))) return;
 
     await sendAuthorInfo(bot, chatId);
+  });
+
+  bot.onText(/\/progress/, async (msg) => {
+    const chatId = msg.chat.id;
+
+    if (!(await checkAndHandleRateLimit(bot, chatId, "/progress"))) return;
+    await handleProgress(bot, chatId);
   });
 
   bot.onText(/\/schedule/, async (msg) => {

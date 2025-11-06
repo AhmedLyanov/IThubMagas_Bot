@@ -26,7 +26,7 @@ const keyboard = {
   reply_markup: {
     resize_keyboard: true,
     keyboard: [
-      [{ text: "/tasks" }, {text: '/schedule'}, {text: '/notifications'}, { text: "/reminder" }],
+      [{ text: "/tasks" }, {text: '/schedule'}, {text: '/notifications'}, { text: "/reminder" },{ text: "/progress" },],
       [{ text: "/stopreminder" }, { text: "/logout" }, { text: "/dev"}],
     ],
   },
