@@ -246,7 +246,7 @@ async function handleProgress(bot, chatId) {
   }
 
   try {
-    await bot.sendMessage(chatId, "📊 Загружаю данные текущего курса...");
+    await bot.sendMessage(chatId, "Анализирую вашу успеваемость...");
     const diary = await getStudentProgress(session.token, session.studentId);
 
     if (!diary || diary.length === 0) {
@@ -261,7 +261,7 @@ async function handleProgress(bot, chatId) {
     const summaryText = generateProgressSummary(diary);
 
     await bot.sendPhoto(chatId, imageBuffer, {
-      caption: `🎓 **Ваша текущая успеваемость**${summaryText}\n\n` +
+      caption: `**Ваша текущая успеваемость**${summaryText}\n\n` +
                `_Данные обновлены: ${new Date().toLocaleDateString('ru-RU')}_`,
       parse_mode: "Markdown"
     });
