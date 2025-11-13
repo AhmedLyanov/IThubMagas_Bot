@@ -36,14 +36,12 @@ const AUTHOR_INFO = {
   name: "Ахмед",
   contact: "@DevAhmed1",
   email: "amoshal1997@gmail.com",
-  github: "https://github.com/AhmedLyanov",
 };
 
 const CO_AUTHOR_INFO = {
   name: "Адам",
   contact: "@ItHubMagas",
   email: "adam.ovsh00@mail.ru",
-  github: "https://github.com/Nays06",
 };
 
 
