@@ -55,13 +55,12 @@ IThub Helper - Помощник для студентов
 Имя: ${AUTHOR_INFO.name}
 Telegram: ${AUTHOR_INFO.contact}
 Email: ${AUTHOR_INFO.email}
-GitHub: <a href="${AUTHOR_INFO.github}">${AUTHOR_INFO.github}</a>,
 
 Соавтор:
 Имя: ${CO_AUTHOR_INFO.name}
 Telegram: ${CO_AUTHOR_INFO.contact}
 Email: ${CO_AUTHOR_INFO.email}
-GitHub: <a href="${CO_AUTHOR_INFO.github}">${CO_AUTHOR_INFO.github}</a>,
+
 
 Техническая информация:
 Платформа: IThub Colleges
